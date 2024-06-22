@@ -4,6 +4,7 @@ import {
   createUser,
   updateUser,
   deleteUser,
+  loginUser,
 } from '../services/users.js'
 
 export function usersRoutes(app) {
@@ -55,6 +56,17 @@ export function usersRoutes(app) {
     } catch (err) {
       console.error('error deleting user', err)
       return res.status(500).end()
+    }
+  })
+  app.post('/api/v1/user/login', async (req, res) => {
+    try {
+      const token = await loginUser(req.body)
+      console.log('token:', token)
+      return res.status(200).send({ token })
+    } catch (err) {
+      return res.status(400).send({
+        error: 'login failed, did you enter the correct username/password?',
+      })
     }
   })
 }

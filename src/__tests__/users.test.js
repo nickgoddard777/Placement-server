@@ -13,13 +13,15 @@ describe('creating users', () => {
   test('with all parameters should succeed', async () => {
     const user = {
       name: 'John Doe',
-      email: 'john.doe@email.com',
+      email: 'testuser1@email.com',
       password: 'Password123!',
     }
     const createdUser = await createUser(user)
     expect(createdUser._id).toBeInstanceOf(mongoose.Types.ObjectId)
     const foundUser = await User.findById(createdUser._id)
-    expect(foundUser).toEqual(expect.objectContaining(user))
+    expect(foundUser.name).toEqual(user.name)
+    expect(foundUser.email).toEqual(user.email)
+    expect(foundUser.password).not.toEqual(user.password)
     expect(foundUser.createdAt).toBeInstanceOf(Date)
     expect(foundUser.updatedAt).toBeInstanceOf(Date)
   })
@@ -45,6 +47,32 @@ describe('creating users', () => {
     } catch (err) {
       expect(err).toBeInstanceOf(mongoose.Error.ValidationError)
       expect(err.message).toContain('`email` is required')
+    }
+  })
+  test('with duplicate email should fail', async () => {
+    const user1 = {
+      name: 'User Name1',
+      email: 'test@email.com',
+      password: 'Password123!',
+    }
+    const user2 = {
+      name: 'User Name2',
+      email: 'test@email.com',
+      password: 'Password123!',
+    }
+    try {
+      await createUser(user1)
+    } catch (err) {
+      console.log(err)
+    }
+
+    try {
+      await createUser(user2)
+    } catch (err) {
+      expect(err).toBeInstanceOf(mongoose.Error.ValidationError)
+      expect(err.message).toContain(
+        'A user is already registered with this email address.',
+      )
     }
   })
 })
