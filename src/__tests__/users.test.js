@@ -39,7 +39,7 @@ describe('creating users', () => {
   })
   test('without email should fail', async () => {
     const user = {
-      name: 'Daniel Bugl',
+      name: 'Lisa Vickerage',
       password: 'Password123!',
     }
     try {
