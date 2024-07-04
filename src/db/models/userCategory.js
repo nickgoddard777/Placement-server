@@ -1,7 +1,9 @@
 import mongoose from 'mongoose'
 
 async function validateName(name) {
-  const userCategory = await this.constructor.findOne({ name })
+  const userCategory = await this.constructor.findOne({
+    name,
+  })
   if (userCategory) {
     throw new Error('A user category is already registered with this name.')
   }

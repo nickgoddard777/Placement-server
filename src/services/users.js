@@ -1,13 +1,19 @@
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import { User } from '../db/models/user.js'
+import { UserCategory } from '../db/models/userCategory.js'
 
-export async function createUser({ name, email, password }) {
+export async function createUser({ name, email, password, category }) {
   var hashedPassword = ''
   if (password !== '' && password !== undefined) {
     hashedPassword = await bcrypt.hash(password, 10)
   }
-  const user = new User({ name, email, password: hashedPassword })
+  const user = new User({
+    name,
+    email,
+    password: hashedPassword,
+    category,
+  })
   return await user.save()
 }
 
@@ -20,6 +26,17 @@ async function listUsers(
 
 export async function listAllUsers(options) {
   return await listUsers({}, options)
+}
+
+export async function listUsersByCategory(categoryName, options) {
+  console.log(categoryName)
+  const userCategory = await UserCategory.findOne({ name: categoryName })
+  console.log(userCategory.length)
+  console.log(userCategory.name)
+  if (!userCategory) return []
+  const users = await listUsers({ category: userCategory._id }, options)
+  console.log(users.length)
+  return users
 }
 
 export async function getUserById(id) {

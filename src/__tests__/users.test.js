@@ -1,13 +1,56 @@
 import mongoose from 'mongoose'
-import { describe, test, expect, beforeEach } from '@jest/globals'
+import { describe, test, expect, beforeEach, beforeAll } from '@jest/globals'
 import {
   createUser,
   listAllUsers,
+  listUsersByCategory,
   getUserById,
   updateUser,
   deleteUser,
 } from '../services/users.js'
 import { User } from '../db/models/user.js'
+import { createUserCategory } from '../services/userCategories.js'
+
+let testCategory = null
+let sampleUsers = []
+
+beforeAll(async () => {
+  testCategory = await createUserCategory({
+    name: 'Test Category',
+    admin: true,
+    placementAttendee: false,
+  })
+  sampleUsers = [
+    {
+      name: 'John Doe',
+      email: 'john.doe@email.com',
+      password: 'Password',
+      category: testCategory._id,
+      status: 'active',
+    },
+    {
+      name: 'Jane Doe',
+      email: 'jane.doe@email.com',
+      password: 'Password',
+      category: testCategory._id,
+      status: 'active',
+    },
+    {
+      name: 'Arthur Doe',
+      email: 'arthur.doe@email.com',
+      password: 'Password',
+      category: testCategory._id,
+      status: 'inactive',
+    },
+    {
+      name: 'Brenda Doe',
+      email: 'brenda.doe@email.com',
+      password: 'Password',
+      category: testCategory._id,
+      status: 'archived',
+    },
+  ]
+})
 
 describe('creating users', () => {
   test('with all parameters should succeed', async () => {
@@ -15,6 +58,8 @@ describe('creating users', () => {
       name: 'John Doe',
       email: 'testuser1@email.com',
       password: 'Password123!',
+      category: testCategory._id,
+      status: 'active',
     }
     const createdUser = await createUser(user)
     expect(createdUser._id).toBeInstanceOf(mongoose.Types.ObjectId)
@@ -24,11 +69,15 @@ describe('creating users', () => {
     expect(foundUser.password).not.toEqual(user.password)
     expect(foundUser.createdAt).toBeInstanceOf(Date)
     expect(foundUser.updatedAt).toBeInstanceOf(Date)
+    expect(String(foundUser.category?._id)).toEqual(String(testCategory?._id))
+    expect(foundUser.status).toEqual(user.status)
   })
   test('without name should fail', async () => {
     const user = {
       email: 'DanielBugl@emial.com',
       password: 'Password123!',
+      name: '',
+      category: testCategory._id,
     }
     try {
       await createUser(user)
@@ -40,7 +89,9 @@ describe('creating users', () => {
   test('without email should fail', async () => {
     const user = {
       name: 'Lisa Vickerage',
+      email: '',
       password: 'Password123!',
+      category: testCategory._id,
     }
     try {
       await createUser(user)
@@ -49,16 +100,31 @@ describe('creating users', () => {
       expect(err.message).toContain('`email` is required')
     }
   })
+  test('without category should fail', async () => {
+    const user = {
+      name: 'John Doe',
+      email: 'testuser1@email.com',
+      password: 'Password123!',
+    }
+    try {
+      await createUser(user)
+    } catch (err) {
+      expect(err).toBeInstanceOf(mongoose.Error.ValidationError)
+      expect(err.message).toContain('`category` is required')
+    }
+  })
   test('with duplicate email should fail', async () => {
     const user1 = {
       name: 'User Name1',
       email: 'test@email.com',
       password: 'Password123!',
+      category: testCategory._id,
     }
     const user2 = {
       name: 'User Name2',
       email: 'test@email.com',
       password: 'Password123!',
+      category: testCategory._id,
     }
     try {
       await createUser(user1)
@@ -77,14 +143,8 @@ describe('creating users', () => {
   })
 })
 
-const sampleUsers = [
-  { name: 'John Doe', email: 'john.doe@email.com', password: 'Password' },
-  { name: 'Jane Doe', email: 'jane.doe@email.com', password: 'Password' },
-  { name: 'Arthur Doe', email: 'arthur.doe@email.com', password: 'Password' },
-  { name: 'Brenda Doe', email: 'brenda.doe@email.com', password: 'Password' },
-]
-
 let createdSampleUsers = []
+
 beforeEach(async () => {
   await User.deleteMany({})
   createdSampleUsers = []
@@ -119,6 +179,10 @@ describe('listing users', () => {
     expect(users.map((user) => user.updatedAt)).toEqual(
       sortedSampleUsers.map((user) => user.updatedAt),
     )
+  })
+  test('should be able to filter by category', async () => {
+    const users = await listUsersByCategory(testCategory.name)
+    expect(users.length).toEqual(4)
   })
 })
 

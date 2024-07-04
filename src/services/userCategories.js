@@ -1,7 +1,11 @@
 import { UserCategory } from '../db/models/userCategory.js'
 
 export async function createUserCategory({ name, admin, placementAttendee }) {
-  const userCategory = new UserCategory({ name, admin, placementAttendee })
+  const userCategory = new UserCategory({
+    name,
+    admin,
+    placementAttendee,
+  })
   return await userCategory.save()
 }
 

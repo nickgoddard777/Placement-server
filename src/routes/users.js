@@ -20,10 +20,12 @@ export function usersRoutes(app) {
     }
   })
   app.get('/api/v1/users/:id', async (req, res) => {
-    const { id } = req.params
+    const id = req.params
     try {
       const user = await getUserById(id)
-      if (user === null) return res.status(404).end()
+      if (user === null) {
+        return res.status(404).end()
+      }
       return res.json(user)
     } catch (err) {
       console.error('error getting user', err)
@@ -51,7 +53,9 @@ export function usersRoutes(app) {
   app.delete('/api/v1/users/:id', async (req, res) => {
     try {
       const { deletedCount } = await deleteUser(req.params.id)
-      if (deletedCount === 0) return res.sendStatus(404)
+      if (deletedCount === 0) {
+        return res.sendStatus(404)
+      }
       return res.status(204).end()
     } catch (err) {
       console.error('error deleting user', err)

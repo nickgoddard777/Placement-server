@@ -1,9 +1,5 @@
 {
   "root": true,
-  "parser": "@typescript-eslint/parser",
-  "plugins": [
-    "@typescript-eslint"
-  ],
   "env": {
     "node": true,
     "es6": true
@@ -14,20 +10,6 @@
   },
   "extends": [
     "eslint:recommended",
-    "prettier",
-    "@react-native-community"
-  ],
-  "overrides": [
-    {
-      "files": [
-        "*.ts",
-        "*.tsx"
-      ],
-      "rules": {
-        "@typescript-eslint/no-shadow": "error",
-        "no-shadow": "off",
-        "no-undef": "off"
-      }
-    }
+    "prettier"
   ]
 }

@@ -1,9 +1,12 @@
-import mongoose from "mongoose";
-import { beforeAll, afterAll } from "@jest/globals";
-import { initDatabase } from "../db/init.js";
+import mongoose from 'mongoose'
+import { beforeAll, afterAll } from '@jest/globals'
+
+import { initDatabase } from '../db/init.js'
+
 beforeAll(async () => {
-  await initDatabase();
-});
+  await initDatabase()
+})
+
 afterAll(async () => {
-  await mongoose.disconnect();
-});
+  await mongoose.disconnect()
+})

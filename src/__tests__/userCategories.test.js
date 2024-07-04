@@ -7,8 +7,7 @@ import {
   updateUserCategory,
   deleteUserCategory,
 } from '../services/userCategories'
-import { UserCategory } from '../db/models/userCategory'
-import { deleteUser } from '../services/users'
+import { UserCategory } from '../db/models/userCategory.js'
 
 describe('create user category', () => {
   test('with correct parameters should succeed', async () => {
@@ -34,7 +33,7 @@ describe('create user category', () => {
       placementAttendee: false,
     }
     try {
-      const CreateUserCategory = await createUserCategory(category)
+      await createUserCategory(category)
     } catch (err) {
       expect(err).toBeInstanceOf(mongoose.Error.ValidationError)
       expect(err.message).toContain('`name` is required')
@@ -51,7 +50,6 @@ describe('create user category', () => {
       admin: true,
       placementAttendee: false,
     }
-    debugger
     await createUserCategory(userCategory1)
 
     try {
