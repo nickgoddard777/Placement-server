@@ -9,11 +9,12 @@ import {
 
 export function usersRoutes(app) {
   app.get('/api/v1/users', async (req, res) => {
+    console.log('query:', req.query)
     const { sortBy, sortOrder } = req.query
     const options = { sortBy, sortOrder }
 
     try {
-      return res.json(await listAllUsers(options))
+      return res.json(await listAllUsers(options)).status(200)
     } catch (err) {
       console.error('error listing users', err)
       return res.status(500).end()

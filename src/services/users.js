@@ -21,7 +21,8 @@ async function listUsers(
   query = {},
   { sortBy = 'createdAt', sortOrder = 'descending' } = {},
 ) {
-  return await User.find(query).sort({ [sortBy]: sortOrder })
+  const user = await User.find(query).sort({ [sortBy]: sortOrder })
+  return user
 }
 
 export async function listAllUsers(options) {
@@ -29,13 +30,9 @@ export async function listAllUsers(options) {
 }
 
 export async function listUsersByCategory(categoryName, options) {
-  console.log(categoryName)
   const userCategory = await UserCategory.findOne({ name: categoryName })
-  console.log(userCategory.length)
-  console.log(userCategory.name)
   if (!userCategory) return []
   const users = await listUsers({ category: userCategory._id }, options)
-  console.log(users.length)
   return users
 }
 
