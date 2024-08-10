@@ -1,5 +1,5 @@
 import mongoose from 'mongoose'
-import { describe, test, expect, beforeAll } from '@jest/globals'
+import { describe, test, expect, beforeAll, afterEach } from '@jest/globals'
 import { registerAttendance } from '../services/attendance'
 import { Attendance } from '../db/models/attendance'
 import { createUserCategory } from '../services/userCategories'
@@ -21,6 +21,10 @@ beforeAll(async () => {
     category: testCategory._id,
     status: 'active',
   })
+})
+
+afterEach(async () => {
+  await Attendance.deleteMany()
 })
 
 describe('register attendance', () => {
@@ -118,5 +122,16 @@ describe('register attendance', () => {
     } catch (err) {
       expect(err.message).toContain('E11000 duplicate key error collection:')
     }
+  })
+  test('with status equal to absent reason can be entered', async () => {
+    const attendance = {
+      userId: user._id,
+      date: new Date(),
+      status: 'absent',
+      reason: 'sick',
+    }
+    const CreateAttendance = await registerAttendance(attendance)
+    const foundAttendance = await Attendance.findById(CreateAttendance._id)
+    expect(foundAttendance.reason).toEqual(attendance.reason)
   })
 })
