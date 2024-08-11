@@ -2,8 +2,18 @@ import moment from 'moment'
 import mongoose, { Schema } from 'mongoose'
 
 async function isToday(date) {
-  if (!moment(date).isSame(moment(), 'day')) {
-    throw new Error('Attendance date must be today')
+  switch (this.status) {
+    case 'plannedAbsence':
+      if (moment(date).isBefore(moment().add(1, 'days'), 'day')) {
+        throw new Error(
+          'Planned absence date must be at least one day in the future.',
+        )
+      }
+      break
+    default:
+      if (!moment(date).isSame(moment(), 'day')) {
+        throw new Error('Attendance date must be today')
+      }
   }
 }
 

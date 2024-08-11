@@ -4,6 +4,7 @@ import { registerAttendance } from '../services/attendance'
 import { Attendance } from '../db/models/attendance'
 import { createUserCategory } from '../services/userCategories'
 import { createUser } from '../services/users'
+import moment from 'moment'
 
 let user = null
 let testCategory = null
@@ -133,5 +134,29 @@ describe('register attendance', () => {
     const CreateAttendance = await registerAttendance(attendance)
     const foundAttendance = await Attendance.findById(CreateAttendance._id)
     expect(foundAttendance.reason).toEqual(attendance.reason)
+  })
+  test('with status equal to plannedAbsence date has to be at least one day away', async () => {
+    const attendance = {
+      userId: user._id,
+      date: moment().add(1, 'days').toDate(),
+      status: 'plannedAbsence',
+      reason: 'vacation',
+    }
+    const CreateAttendance = await registerAttendance(attendance)
+    const foundAttendance = await Attendance.findById(CreateAttendance._id)
+    expect(foundAttendance.date.toJSON().slice(0, 10)).toEqual(
+      attendance.date.toJSON().slice(0, 10),
+    )
+  })
+  test('with status plannedAbsence and date today should fail', async () => {
+    const attendance = {
+      userId: user._id,
+      date: new Date(),
+      status: 'plannedAbsence',
+      reason: 'vacation',
+    }
+    await expect(registerAttendance(attendance)).rejects.toThrow(
+      'Planned absence date must be at least one day in the future.',
+    )
   })
 })
