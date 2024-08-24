@@ -1,4 +1,5 @@
 import mongoose, { Schema } from 'mongoose'
+import { UserCategory } from './userCategory.js'
 
 const emailRegExp = new RegExp(/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/)
 
@@ -33,7 +34,7 @@ const userSchema = new Schema(
     password: { type: String },
     category: {
       type: Schema.Types.ObjectId,
-      ref: 'usercategory',
+      ref: 'userCategory',
       required: true,
     },
     status: {
@@ -41,6 +42,22 @@ const userSchema = new Schema(
       default: 'active',
       enum: ['active', 'inactive', 'archived'],
       required: true,
+    },
+  },
+  {
+    methods: {
+      isAdmin: async function () {
+        const category = await UserCategory.findById(this.category)
+        return category.isAdmin()
+      },
+      isStaff: async function () {
+        const category = await UserCategory.findById(this.category)
+        return category.isStaff()
+      },
+      isPlacementAttendee: async function () {
+        const category = await UserCategory.findById(this.category)
+        return category.isPlacementAttendee()
+      },
     },
   },
   { timestamps: true },

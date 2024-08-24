@@ -40,17 +40,28 @@ export async function getUserById(id) {
   return await User.findById(id)
 }
 
-export async function updateUser(userId, { name, email, password }) {
+export async function updateUser(userId, { name, email, password, category }) {
   var hashedPassword = ''
 
   if (password !== '' && password !== undefined) {
     hashedPassword = await bcrypt.hash(password, 10)
   }
-  return await User.findOneAndUpdate(
-    { _id: userId },
-    { $set: { name, email, password: hashedPassword } },
-    { new: true },
-  )
+  console.log('userId: ', userId)
+  const user = await User.findById(userId)
+  console.log('user: ', user)
+  if (!user) {
+    throw new Error('User not found')
+  }
+  console.log('name: ', name)
+  console.log('email: ', email)
+  console.log('password: ', password)
+  console.log('category: ', category)
+  console.log('isNew: ', user.isNew)
+  if (name !== undefined) user.name = name
+  if (email !== undefined) user.email = email
+  if (password !== undefined) user.password = hashedPassword
+  if (category !== undefined) user.category = category
+  return await user.save()
 }
 
 export async function loginUser({ email, password }) {
@@ -64,10 +75,22 @@ export async function loginUser({ email, password }) {
     console.log('invalid password!')
     throw new Error('invalid password!')
   }
-  const token = jwt.sign({ sub: user._id }, process.env.JWT_SECRET, {
-    expiresIn: '24h',
-  })
-  return token
+  const isAdmin = await user.isAdmin()
+  const isPlacementAttendee = await user.isPlacementAttendee()
+  const isStaff = await user.isStaff()
+  const token = jwt.sign(
+    {
+      sub: user._id,
+      admin: isAdmin,
+      placementAttendee: isPlacementAttendee,
+      staff: isStaff,
+    },
+    process.env.JWT_SECRET,
+    {
+      expiresIn: '24h',
+    },
+  )
+  return { token, user }
 }
 
 export async function deleteUser(userId) {

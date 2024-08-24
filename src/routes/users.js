@@ -6,13 +6,14 @@ import {
   deleteUser,
   loginUser,
 } from '../services/users.js'
+import { requireAuth } from '../middleware/jwt.js'
 
 export function usersRoutes(app) {
-  app.get('/api/v1/users', async (req, res) => {
+  app.get('/api/v1/users', requireAuth, async (req, res) => {
+    if (!req.auth.admin && !req.auth.staff) return res.sendStatus(401)
     console.log('query:', req.query)
     const { sortBy, sortOrder } = req.query
     const options = { sortBy, sortOrder }
-
     try {
       return res.json(await listAllUsers(options)).status(200)
     } catch (err) {
@@ -20,8 +21,10 @@ export function usersRoutes(app) {
       return res.status(500).end()
     }
   })
-  app.get('/api/v1/users/:id', async (req, res) => {
-    const id = req.params
+  app.get('/api/v1/users/:id', requireAuth, async (req, res) => {
+    const id = req.params.id
+    if (!req.auth.admin && !req.auth.staff && req.auth.sub !== id)
+      return res.sendStatus(401)
     try {
       const user = await getUserById(id)
       if (user === null) {
@@ -33,7 +36,8 @@ export function usersRoutes(app) {
       return res.status(500).end()
     }
   })
-  app.post('/api/v1/users', async (req, res) => {
+  app.post('/api/v1/users', requireAuth, async (req, res) => {
+    if (!req.auth.admin) return res.sendStatus(401)
     try {
       const user = await createUser(req.body)
       return res.json(user)
@@ -42,7 +46,7 @@ export function usersRoutes(app) {
       return res.status(500).end()
     }
   })
-  app.patch('/api/v1/users/:id', async (req, res) => {
+  app.patch('/api/v1/users/:id', requireAuth, async (req, res) => {
     try {
       const user = await updateUser(req.params.id, req.body)
       return res.json(user)
@@ -52,6 +56,7 @@ export function usersRoutes(app) {
     }
   })
   app.delete('/api/v1/users/:id', async (req, res) => {
+    // if (!req.auth.admin) return res.sendStatus(401)
     try {
       const { deletedCount } = await deleteUser(req.params.id)
       if (deletedCount === 0) {
@@ -65,12 +70,12 @@ export function usersRoutes(app) {
   })
   app.post('/api/v1/user/login', async (req, res) => {
     try {
-      const token = await loginUser(req.body)
-      console.log('token:', token)
-      return res.status(200).send({ token })
+      const { token, user } = await loginUser(req.body)
+      return res.status(200).send({ token, user })
     } catch (err) {
+      console.error('error logging in', err)
       return res.status(400).send({
-        error: 'login failed, did you enter the correct username/password?',
+        error: 'login failed, ' + err.message,
       })
     }
   })

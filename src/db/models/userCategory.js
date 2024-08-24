@@ -19,8 +19,22 @@ const userCategorySchema = new mongoose.Schema(
     },
     admin: { type: Boolean, required: true },
     placementAttendee: { type: Boolean, required: true },
+    staff: { type: Boolean, required: true },
   },
   { timestamps: true },
 )
+
+userCategorySchema.method({
+  isAdmin: function () {
+    console.log('this.admin: ', this.admin)
+    return this.admin
+  },
+  isStaff: function () {
+    return this.staff
+  },
+  isPlacementAttendee: function () {
+    return this.placementAttendee
+  },
+})
 
 export const UserCategory = mongoose.model('userCategory', userCategorySchema)

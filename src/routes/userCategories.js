@@ -5,9 +5,11 @@ import {
   updateUserCategory,
   deleteUserCategory,
 } from '../services/userCategories.js'
+import { requireAuth } from '../middleware/jwt.js'
 
 export function userCategoriesRoutes(app) {
-  app.get('/api/v1/userCategories', async (req, res) => {
+  app.get('/api/v1/userCategories', requireAuth, async (req, res) => {
+    if (!req.auth.admin && !req.auth.staff) return res.sendStatus(401)
     try {
       return res.json(await listAllUserCategories())
     } catch (err) {
@@ -15,7 +17,8 @@ export function userCategoriesRoutes(app) {
       return res.status(500).end()
     }
   })
-  app.get('/api/v1/userCategories/:id', async (req, res) => {
+  app.get('/api/v1/userCategories/:id', requireAuth, async (req, res) => {
+    if (!req.auth.admin && !req.auth.staff) return res.sendStatus(401)
     const { id } = req.params
     try {
       const userCategory = await getUserCategoryById(id)
@@ -28,7 +31,8 @@ export function userCategoriesRoutes(app) {
       return res.status(500).end()
     }
   })
-  app.post('/api/v1/userCategories', async (req, res) => {
+  app.post('/api/v1/userCategories', requireAuth, async (req, res) => {
+    if (!req.auth.admin) return res.sendStatus(401)
     try {
       const userCategory = await createUserCategory(req.body)
       return res.json(userCategory)
@@ -37,7 +41,8 @@ export function userCategoriesRoutes(app) {
       return res.status(500).end()
     }
   })
-  app.patch('/api/v1/userCategories/:id', async (req, res) => {
+  app.patch('/api/v1/userCategories/:id', requireAuth, async (req, res) => {
+    if (!req.auth.admin) return res.sendStatus(401)
     try {
       const userCategory = await updateUserCategory(req.params.id, req.body)
       return res.json(userCategory)
@@ -46,7 +51,8 @@ export function userCategoriesRoutes(app) {
       return res.status(500).end()
     }
   })
-  app.delete('api/v1/userCategories/:id', async (req, res) => {
+  app.delete('api/v1/userCategories/:id', requireAuth, async (req, res) => {
+    if (!req.auth.admin) return res.sendStatus(401)
     try {
       const { deletedCount } = await deleteUserCategory(req.params.id)
       if (deletedCount === 0) {
