@@ -15,6 +15,7 @@ describe('create user category', () => {
       name: 'Test Category',
       admin: true,
       placementAttendee: false,
+      staff: false,
     }
     const CreateUserCategory = await createUserCategory(category)
     expect(CreateUserCategory._id).toBeInstanceOf(mongoose.Types.ObjectId)
@@ -31,6 +32,7 @@ describe('create user category', () => {
     const category = {
       admin: true,
       placementAttendee: false,
+      staff: false,
     }
     try {
       await createUserCategory(category)
@@ -44,11 +46,13 @@ describe('create user category', () => {
       name: 'Duplicate Category',
       admin: true,
       placementAttendee: false,
+      staff: false,
     }
     const userCategory2 = {
       name: 'Duplicate Category',
       admin: true,
       placementAttendee: false,
+      staff: false,
     }
     await createUserCategory(userCategory1)
 
@@ -64,10 +68,30 @@ describe('create user category', () => {
 })
 
 const sampleUserCategories = [
-  { name: 'Test Category 1', admin: true, placementAttendee: false },
-  { name: 'Test Category 2', admin: false, placementAttendee: true },
-  { name: 'Test Category 3', admin: false, placementAttendee: false },
-  { name: 'Test Category 4', admin: false, placementAttendee: false },
+  {
+    name: 'Test Category 1',
+    admin: true,
+    placementAttendee: false,
+    staff: false,
+  },
+  {
+    name: 'Test Category 2',
+    admin: false,
+    placementAttendee: true,
+    staff: false,
+  },
+  {
+    name: 'Test Category 3',
+    admin: false,
+    placementAttendee: false,
+    staff: true,
+  },
+  {
+    name: 'Test Category 4',
+    admin: false,
+    placementAttendee: false,
+    staff: false,
+  },
 ]
 
 let createdSampleUserCategories = []

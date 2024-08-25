@@ -16,7 +16,7 @@ async function validateEmail(email) {
   const user = await this.constructor.findOne({
     email,
   })
-  if (user) {
+  if (user && user._id.toString() !== this._id.toString()) {
     throw new Error('A user is already registered with this email address.')
   }
 }
@@ -45,9 +45,11 @@ const userSchema = new Schema(
     },
   },
   {
+    timestamps: true,
     methods: {
       isAdmin: async function () {
         const category = await UserCategory.findById(this.category)
+        console.log('category:', category)
         return category.isAdmin()
       },
       isStaff: async function () {
@@ -60,7 +62,6 @@ const userSchema = new Schema(
       },
     },
   },
-  { timestamps: true },
 )
 
 export const User = mongoose.model('user', userSchema)

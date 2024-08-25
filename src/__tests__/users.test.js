@@ -19,6 +19,7 @@ beforeAll(async () => {
     name: 'Test Category',
     admin: true,
     placementAttendee: false,
+    staff: false,
   })
   sampleUsers = [
     {
@@ -152,6 +153,7 @@ beforeEach(async () => {
     const createdUser = new User(user)
     createdSampleUsers.push(await createdUser.save())
   }
+  // console.log('createdSampleUsers:', createdSampleUsers)
 })
 
 describe('listing users', () => {
@@ -199,10 +201,9 @@ describe('getting a user', () => {
 
 describe('updating users', () => {
   test('should update the specified property', async () => {
-    await updateUser(createdSampleUsers[0]._id, {
+    const updatedUser = await updateUser(createdSampleUsers[0]._id, {
       name: 'Test User',
     })
-    const updatedUser = await User.findById(createdSampleUsers[0]._id)
     expect(updatedUser.name).toEqual('Test User')
   })
   test('should not update other properties', async () => {
@@ -221,11 +222,13 @@ describe('updating users', () => {
       createdSampleUsers[0].updatedAt.getTime(),
     )
   })
-  test('should fail if the id does not exist', async () => {
-    const user = await updateUser('000000000000000000000000', {
-      name: 'Test User',
-    })
-    expect(user).toEqual(null)
+  test('should fail if the id does not exist', () => {
+    async function updateUserTest() {
+      await updateUser('000000000000000000000000', {
+        name: 'Test User',
+      })
+    }
+    expect(updateUserTest).toThrow('User not found')
   })
 })
 

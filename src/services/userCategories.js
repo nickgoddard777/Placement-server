@@ -52,11 +52,11 @@ export async function getIsStaff(categoryName) {
 
 export async function updateUserCategory(
   userCategoryId,
-  { name, admin, placementAttendee },
+  { name, admin, placementAttendee, staff },
 ) {
   return await UserCategory.findOneAndUpdate(
     { _id: userCategoryId },
-    { $set: { name, admin, placementAttendee } },
+    { $set: { name, admin, placementAttendee, staff } },
     { new: true },
   )
 }

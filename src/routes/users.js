@@ -47,6 +47,7 @@ export function usersRoutes(app) {
     }
   })
   app.patch('/api/v1/users/:id', requireAuth, async (req, res) => {
+    if (!req.auth.admin) return res.sendStatus(401)
     try {
       const user = await updateUser(req.params.id, req.body)
       return res.json(user)
@@ -56,7 +57,7 @@ export function usersRoutes(app) {
     }
   })
   app.delete('/api/v1/users/:id', async (req, res) => {
-    // if (!req.auth.admin) return res.sendStatus(401)
+    if (!req.auth.admin) return res.sendStatus(401)
     try {
       const { deletedCount } = await deleteUser(req.params.id)
       if (deletedCount === 0) {
