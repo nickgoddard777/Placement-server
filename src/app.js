@@ -5,6 +5,7 @@ import { expressjwt as jwt } from 'express-jwt'
 
 import { usersRoutes } from './routes/users.js'
 import { userCategoriesRoutes } from './routes/userCategories.js'
+import { attendancesRoutes } from './routes/attendances.js'
 
 const app = express()
 app.use(cors())
@@ -19,6 +20,7 @@ app.use(
 
 usersRoutes(app)
 userCategoriesRoutes(app)
+attendancesRoutes(app)
 
 app.get('/', (req, res) => {
   res.send('Hello World')

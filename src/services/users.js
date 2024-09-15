@@ -55,8 +55,8 @@ export async function updateUser(userId, { name, email, password, category }) {
   if (email !== undefined) user.email = email
   if (password !== undefined) user.password = hashedPassword
   if (category !== undefined) user.category = category
-  const saveduser = await user.save()
-  return saveduser
+  const savedUser = await user.save()
+  return savedUser
 }
 
 export async function loginUser({ email, password }) {
@@ -74,19 +74,22 @@ export async function loginUser({ email, password }) {
   const isAdmin = await user.isAdmin()
   const isPlacementAttendee = await user.isPlacementAttendee()
   const isStaff = await user.isStaff()
+  console.log('isAdmin:', isAdmin)
+  console.log('isPlacementAttendee:', isPlacementAttendee)
+  console.log('isStaff:', isStaff)
   const token = jwt.sign(
     {
       sub: user._id,
-      admin: isAdmin,
-      placementAttendee: isPlacementAttendee,
-      staff: isStaff,
+      isAdmin: isAdmin,
+      isPlacementAttendee: isPlacementAttendee,
+      isStaff: isStaff,
     },
     process.env.JWT_SECRET,
     {
       expiresIn: '24h',
     },
   )
-  return { token, user }
+  return { token, user, isAdmin, isPlacementAttendee, isStaff }
 }
 
 export async function deleteUser(userId) {

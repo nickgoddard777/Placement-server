@@ -15,7 +15,9 @@ export function usersRoutes(app) {
     const { sortBy, sortOrder } = req.query
     const options = { sortBy, sortOrder }
     try {
-      return res.json(await listAllUsers(options)).status(200)
+      const users = await listAllUsers(options)
+      console.log('users:', users)
+      return res.json(users).status(200)
     } catch (err) {
       console.error('error listing users', err)
       return res.status(500).end()
@@ -71,8 +73,11 @@ export function usersRoutes(app) {
   })
   app.post('/api/v1/user/login', async (req, res) => {
     try {
-      const { token, user } = await loginUser(req.body)
-      return res.status(200).send({ token, user })
+      const { token, user, isAdmin, isPlacementAttendee, isStaff } =
+        await loginUser(req.body)
+      return res
+        .status(200)
+        .send({ token, user, isAdmin, isPlacementAttendee, isStaff })
     } catch (err) {
       console.error('error logging in', err)
       return res.status(400).send({

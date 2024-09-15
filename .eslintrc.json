@@ -11,5 +11,16 @@
   "extends": [
     "eslint:recommended",
     "prettier"
+  ],
+  "overrides": [
+    {
+      "files": [
+        "**/*.test.js",
+        "**/*.test.jsx"
+      ],
+      "env": {
+        "jest": true
+      }
+    }
   ]
 }
